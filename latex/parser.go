@@ -11,15 +11,11 @@ type entry struct {
 	Value string
 }
 
-type config struct {
-	Entries []entry
-}
-
-var stack string
 var m map[string]entry
 
 // GetConfig takes in a file in the form of an io Reader and returns a JSON object that corresponds to the config parameters of the template
 func GetConfig(reader io.Reader) ([]byte, error) {
+	var stack string
 	m = make(map[string]entry)
 	b := make([]byte, 1)
 	enclosed := false
