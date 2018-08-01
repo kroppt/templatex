@@ -8,16 +8,19 @@ import (
 )
 
 type entry struct {
-	Type  string
-	Value string
+	Type  string `json:"type"`
+	Value string `json:"value"`
 }
 
 // GetConfig takes in a file in the form of an io Reader and returns a JSON object that corresponds to the config parameters of the template
-func GetConfig(reader io.Reader) ([]byte, error) {
+func GetConfig(reader io.Reader, human bool) ([]byte, error) {
 	m := make(map[string]entry)
 	err := useFile(reader, ioutil.Discard, m)
 	if err != nil {
 		return nil, err
+	}
+	if human {
+		return json.MarshalIndent(m, "", "\t")
 	}
 	return json.Marshal(m)
 }
