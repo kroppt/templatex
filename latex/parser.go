@@ -25,12 +25,13 @@ func GetConfig(reader io.Reader, human bool) ([]byte, error) {
 	return json.Marshal(m)
 }
 
-func useFile(reader io.Reader, writer io.Writer, m map[string]entry) error {
+// useFile extracts config from template AND writes to final document
+func useFile(template io.Reader, writer io.Writer, config map[string]entry) error {
 	var stack string
 	b := make([]byte, 1)
 	enclosed := false
 	for {
-		_, err := reader.Read(b)
+		_, err := template.Read(b)
 		if err == io.EOF {
 			break
 		}
@@ -44,8 +45,8 @@ func useFile(reader io.Reader, writer io.Writer, m map[string]entry) error {
 		} else if enclosed && b[0] == '>' {
 			enclosed = false
 			// take the stack and parse it
-			name := getEntry(m, stack)
-			_, err := writer.Write([]byte(m[name].Value))
+			name := getEntry(config, stack)
+			_, err := writer.Write([]byte(config[name].Value))
 			if err != nil {
 				return err
 			}
@@ -66,6 +67,10 @@ func getEntry(m map[string]entry, str string) string {
 		return ""
 	}
 	strs := strings.Split(str, ":")
-	m[strs[0]] = entry{strs[1], ""}
+	name := strs[0]
+	// check if name is not in map
+	if _, ok := m[name]; !ok {
+		m[strs[0]] = entry{strs[1], ""}
+	}
 	return strs[0]
 }
