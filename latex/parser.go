@@ -62,6 +62,7 @@ func useFile(template io.Reader, writer io.Writer, config map[string]entry) erro
 	return nil
 }
 
+// getEntry returns variable name and adds pair to map
 func getEntry(m map[string]entry, str string) string {
 	if m == nil {
 		return ""

@@ -7,7 +7,7 @@ import (
 )
 
 // CompileTemplate compiles a final document using given template and configuration
-func CompileTemplate(template io.Reader, output io.Writer, jsonConf io.Reader) error {
+func CompileTemplate(template io.Reader, jsonConf io.Reader, output io.Writer) error {
 	// convert config file to byte slice
 	conf, err := ioutil.ReadAll(jsonConf)
 	if err != nil {

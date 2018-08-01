@@ -16,29 +16,29 @@ func usage() {
 func main() {
 	flag.Usage = usage
 	var options struct {
-		op    string
-		fin   string
-		fout  string
-		conf  string
-		human bool
-		guide bool
+		op       string
+		template string
+		fout     string
+		config   string
+		human    bool
+		guide    bool
 	}
 	flag.StringVar(&options.op, "op", "build", "operation to perform out of: build, compile")
-	flag.StringVar(&options.fin, "in", "stdin", "input file")
+	flag.StringVar(&options.template, "in", "stdin", "template input file")
 	flag.StringVar(&options.fout, "out", "stdout", "output file")
-	flag.StringVar(&options.conf, "config", "", "template configuration file")
+	flag.StringVar(&options.config, "config", "", "template configuration file")
 	flag.BoolVar(&options.human, "h", false, "use human readable json")
 	flag.BoolVar(&options.guide, "guided", false, "prompt the user for more input")
 	flag.Parse()
-	var fin *os.File
+	var template *os.File
 	var err error
-	if options.fin == "stdin" {
-		fin = os.Stdin
+	if options.template == "stdin" {
+		template = os.Stdin
 	} else {
-		fin, err = os.Open(options.fin)
+		template, err = os.Open(options.template)
 	}
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed opening input file \"%v\" for reading: %v\n", options.fin, err)
+		fmt.Fprintf(os.Stderr, "failed opening input file \"%v\" for reading: %v\n", options.template, err)
 		os.Exit(1)
 	}
 	var fout *os.File
@@ -54,7 +54,7 @@ func main() {
 	}
 	switch options.op {
 	case "build":
-		buf, err := latex.GetConfig(fin, options.human)
+		buf, err := latex.GetConfig(template, options.human)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "failed reading template: %v\n", err)
 			os.Exit(1)
@@ -66,16 +66,16 @@ func main() {
 		}
 	case "compile":
 		// if config file is default, print usage
-		if options.conf == "" {
+		if options.config == "" {
 			flag.Usage()
 			os.Exit(2)
 		}
-		conf, err := os.Open(options.conf)
+		config, err := os.Open(options.config)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "failed reading config \"%v\": %v\n", options.conf, err)
+			fmt.Fprintf(os.Stderr, "failed reading config \"%v\": %v\n", options.config, err)
 			os.Exit(1)
 		}
-		err = latex.CompileTemplate(fin, fout, conf)
+		err = latex.CompileTemplate(template, config, fout)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "failed compiling compiling document: %v\n", err)
 			os.Exit(1)
