@@ -24,7 +24,7 @@ func main() {
 		guide    bool
 	}
 	flag.StringVar(&options.op, "op", "build", "operation to perform out of: build, compile")
-	flag.StringVar(&options.template, "in", "stdin", "template input file")
+	flag.StringVar(&options.template, "template", "stdin", "template input file")
 	flag.StringVar(&options.fout, "out", "stdout", "output file")
 	flag.StringVar(&options.config, "config", "", "template configuration file")
 	flag.BoolVar(&options.human, "h", false, "use human readable json")
