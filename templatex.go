@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/kroppt/templatex/latex"
+	"github.com/kroppt/templatex/templater"
 )
 
 func usage() {
@@ -54,7 +54,7 @@ func main() {
 	}
 	switch options.op {
 	case "build":
-		buf, err := latex.GetConfig(template, options.human)
+		buf, err := templater.GetConfig(template, options.human)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "failed reading template: %v\n", err)
 			os.Exit(1)
@@ -75,7 +75,7 @@ func main() {
 			fmt.Fprintf(os.Stderr, "failed reading config \"%v\": %v\n", options.config, err)
 			os.Exit(1)
 		}
-		err = latex.CompileTemplate(template, config, fout)
+		err = templater.CompileTemplate(template, config, fout)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "failed compiling compiling document: %v\n", err)
 			os.Exit(1)

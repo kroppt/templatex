@@ -1,4 +1,4 @@
-package latex
+package templater
 
 import (
 	"encoding/json"
