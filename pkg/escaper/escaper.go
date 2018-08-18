@@ -1,5 +1,10 @@
 package escaper
 
+import (
+	"errors"
+	"strings"
+)
+
 var esc map[string]Escaper
 
 func init() {
@@ -12,7 +17,12 @@ type Escaper interface {
 	Escape(string) string
 }
 
-// FindEscaper uses a string mapping to find associated escapers.
-func FindEscaper(key string) (Escaper, error) {
-	return nil, nil
+// GetEscaper uses a string mapping to find associated escapers.
+func GetEscaper(key string) (Escaper, error) {
+	key = strings.ToLower(key)
+	val, ok := esc[key]
+	if !ok {
+		return nil, errors.New("escaper type does not exist")
+	}
+	return val, nil
 }
