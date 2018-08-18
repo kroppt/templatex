@@ -5,12 +5,7 @@ import (
 	"strings"
 )
 
-var esc map[string]Escaper
-
-func init() {
-	esc = make(map[string]Escaper)
-	RegisterEscaper("LaTeX", latexEscaper{})
-}
+var esc = make(map[string]Escaper)
 
 // Escaper defines the behavior of returning an escaped string of the input.
 type Escaper interface {

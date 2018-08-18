@@ -2,6 +2,10 @@ package escaper
 
 import "strings"
 
+func init() {
+	RegisterEscaper("LaTeX", latexEscaper{})
+}
+
 type latexEscaper struct {
 }
 
