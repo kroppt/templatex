@@ -8,21 +8,17 @@ import (
 	"github.com/kroppt/templatex/pkg/templater"
 )
 
-func usage() {
-	fmt.Fprintln(os.Stderr, "usage: templatex [flags]")
-	flag.PrintDefaults()
+var options struct {
+	op       string
+	template string
+	fout     string
+	config   string
+	human    bool
+	guide    bool
 }
 
-func main() {
+func init() {
 	flag.Usage = usage
-	var options struct {
-		op       string
-		template string
-		fout     string
-		config   string
-		human    bool
-		guide    bool
-	}
 	flag.StringVar(&options.op, "op", "build", "operation to perform out of: build, compile")
 	flag.StringVar(&options.template, "template", "stdin", "template input file")
 	flag.StringVar(&options.fout, "out", "stdout", "output file")
@@ -30,6 +26,14 @@ func main() {
 	flag.BoolVar(&options.human, "h", false, "use human readable json")
 	flag.BoolVar(&options.guide, "guided", false, "prompt the user for more input")
 	flag.Parse()
+}
+
+func usage() {
+	fmt.Fprintln(os.Stderr, "usage: templatex [flags]")
+	flag.PrintDefaults()
+}
+
+func main() {
 	var template *os.File
 	var err error
 	if options.template == "stdin" {
@@ -41,8 +45,8 @@ func main() {
 		fmt.Fprintf(os.Stderr, "failed opening input file \"%v\" for reading: %v\n", options.template, err)
 		os.Exit(1)
 	}
-	var fout *os.File
 
+	var fout *os.File
 	if options.fout == "stdout" {
 		fout = os.Stdout
 	} else {
@@ -52,6 +56,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "failed opening output file \"%v\" for reading/writing: %v\n", options.fout, err)
 		os.Exit(1)
 	}
+
 	switch options.op {
 	case "build":
 		buf, err := templater.GetConfig(template, options.human)
@@ -85,5 +90,6 @@ func main() {
 		// Exit code 2: The command line parameters could not be parsed.
 		os.Exit(2)
 	}
+
 	os.Exit(0)
 }
