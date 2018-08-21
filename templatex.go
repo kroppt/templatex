@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/kroppt/templatex/templater"
+	"github.com/kroppt/templatex/pkg/templater"
 )
 
 func usage() {
