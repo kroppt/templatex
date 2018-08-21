@@ -13,6 +13,7 @@ var options struct {
 	template string
 	fout     string
 	config   string
+	escaper  string
 	human    bool
 	guide    bool
 }
@@ -23,6 +24,7 @@ func init() {
 	flag.StringVar(&options.template, "template", "stdin", "template input file")
 	flag.StringVar(&options.fout, "out", "stdout", "output file")
 	flag.StringVar(&options.config, "config", "", "template configuration file")
+	flag.StringVar(&options.escaper, "escaper", "", "escaper to use for guide")
 	flag.BoolVar(&options.human, "h", false, "use human readable json")
 	flag.BoolVar(&options.guide, "guided", false, "prompt the user for more input")
 	flag.Parse()
