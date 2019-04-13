@@ -12,10 +12,10 @@ type entry struct {
 	Value string `json:"value"`
 }
 
-// GetConfig takes in a file in the form of an io Reader and returns a JSON object that corresponds to the config parameters of the template
-func GetConfig(reader io.Reader, human bool) ([]byte, error) {
-	m := make(map[string]entry)
-	err := useFile(reader, ioutil.Discard, m)
+// BuildConfig takes in a file in the form of an io.Reader and returns a JSON object that corresponds to the config parameters of the template
+func BuildConfig(reader io.Reader, human bool) ([]byte, error) {
+	m := make(map[string]*entry)
+	err := processTemplate(reader, ioutil.Discard, m)
 	if err != nil {
 		return nil, err
 	}
@@ -25,8 +25,8 @@ func GetConfig(reader io.Reader, human bool) ([]byte, error) {
 	return json.Marshal(m)
 }
 
-// useFile extracts config from template AND writes to final document
-func useFile(template io.Reader, writer io.Writer, config map[string]entry) error {
+// processTemplate extracts config from template and writes to final document
+func processTemplate(template io.Reader, writer io.Writer, config map[string]*entry) error {
 	var stack string
 	b := make([]byte, 1)
 	enclosed := false
@@ -45,8 +45,8 @@ func useFile(template io.Reader, writer io.Writer, config map[string]entry) erro
 		} else if enclosed && b[0] == '>' {
 			enclosed = false
 			// take the stack and parse it
-			name := getEntry(config, stack)
-			_, err := writer.Write([]byte(config[name].Value))
+			ent := getEntry(config, stack)
+			_, err := writer.Write([]byte(ent.Value))
 			if err != nil {
 				return err
 			}
@@ -63,15 +63,18 @@ func useFile(template io.Reader, writer io.Writer, config map[string]entry) erro
 }
 
 // getEntry returns variable name and adds pair to map
-func getEntry(m map[string]entry, str string) string {
+func getEntry(m map[string]*entry, str string) *entry {
 	if m == nil {
-		return ""
+		return &entry{}
 	}
 	strs := strings.Split(str, ":")
-	name := strs[0]
+	name := strings.TrimSpace(strs[0])
+	typ := strings.TrimSpace(strs[1])
 	// check if name is not in map
-	if _, ok := m[name]; !ok {
-		m[strs[0]] = entry{strs[1], ""}
+	if e, ok := m[name]; ok {
+		return e
 	}
-	return strs[0]
+	e := &entry{typ, ""}
+	m[name] = e
+	return e
 }

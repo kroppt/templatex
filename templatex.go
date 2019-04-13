@@ -61,7 +61,7 @@ func main() {
 
 	switch options.op {
 	case "build":
-		buf, err := templater.GetConfig(template, options.human)
+		buf, err := templater.BuildConfig(template, options.human)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "failed reading template: %v\n", err)
 			os.Exit(1)

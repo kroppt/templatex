@@ -14,13 +14,13 @@ func CompileTemplate(template io.Reader, jsonConf io.Reader, output io.Writer) e
 		return err
 	}
 	// convert json config byte slice into map
-	m := make(map[string]entry)
+	m := make(map[string]*entry)
 	err = json.Unmarshal(conf, &m)
 	if err != nil {
 		return err
 	}
 	// fill in template with provided values
-	err = useFile(template, output, m)
+	err = processTemplate(template, output, m)
 	if err != nil {
 		return err
 	}
