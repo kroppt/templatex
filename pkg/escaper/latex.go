@@ -34,9 +34,5 @@ func (esc latexEscaper) Escape(in string) (out string) {
 		}
 		r, _, err = rin.ReadRune()
 	}
-	// replace gobbled spaces
-	out = strings.ReplaceAll(out, "\\textbackslash ", "\\textbackslash~")
-	out = strings.ReplaceAll(out, "\\textasciitilde ", "\\textasciitilde~")
-	out = strings.ReplaceAll(out, "\\textasciicircum ", "\\textasciicircum~")
 	return out
 }
