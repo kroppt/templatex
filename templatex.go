@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/kroppt/templatex/pkg/escaper"
 	"github.com/kroppt/templatex/pkg/templater"
 )
 
@@ -24,7 +25,7 @@ func init() {
 	flag.StringVar(&options.template, "template", "stdin", "template input file")
 	flag.StringVar(&options.fout, "out", "stdout", "output file")
 	flag.StringVar(&options.config, "config", "", "template configuration file")
-	flag.StringVar(&options.escaper, "escaper", "", "escaper to use for guide")
+	flag.StringVar(&options.escaper, "escaper", "", "escaper to escape user input")
 	flag.BoolVar(&options.human, "h", false, "use human readable json")
 	flag.BoolVar(&options.guide, "guided", false, "prompt the user for more input")
 	flag.Parse()
@@ -82,7 +83,12 @@ func main() {
 			fmt.Fprintf(os.Stderr, "failed reading config \"%v\": %v\n", options.config, err)
 			os.Exit(1)
 		}
-		err = templater.CompileTemplate(template, config, fout)
+		esc, err := escaper.GetEscaper(options.escaper)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "could not get escaper \"%s\": %v\n", options.escaper, err)
+			os.Exit(1)
+		}
+		err = templater.CompileTemplate(template, config, fout, esc)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "failed compiling compiling document: %v\n", err)
 			os.Exit(1)
