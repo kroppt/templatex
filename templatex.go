@@ -5,8 +5,31 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/kroppt/templatex/pkg/escaper"
 	"github.com/kroppt/templatex/pkg/templater"
 )
+
+var options struct {
+	op       string
+	template string
+	fout     string
+	config   string
+	escaper  string
+	human    bool
+	guide    bool
+}
+
+func init() {
+	flag.Usage = usage
+	flag.StringVar(&options.op, "op", "build", "operation to perform out of: build, compile")
+	flag.StringVar(&options.template, "template", "stdin", "template input file")
+	flag.StringVar(&options.fout, "out", "stdout", "output file")
+	flag.StringVar(&options.config, "config", "", "template configuration file")
+	flag.StringVar(&options.escaper, "escaper", "", "escaper to escape user input")
+	flag.BoolVar(&options.human, "h", false, "use human readable json")
+	flag.BoolVar(&options.guide, "guided", false, "prompt the user for more input")
+	flag.Parse()
+}
 
 func usage() {
 	fmt.Fprintln(os.Stderr, "usage: templatex [flags]")
@@ -14,22 +37,6 @@ func usage() {
 }
 
 func main() {
-	flag.Usage = usage
-	var options struct {
-		op       string
-		template string
-		fout     string
-		config   string
-		human    bool
-		guide    bool
-	}
-	flag.StringVar(&options.op, "op", "build", "operation to perform out of: build, compile")
-	flag.StringVar(&options.template, "template", "stdin", "template input file")
-	flag.StringVar(&options.fout, "out", "stdout", "output file")
-	flag.StringVar(&options.config, "config", "", "template configuration file")
-	flag.BoolVar(&options.human, "h", false, "use human readable json")
-	flag.BoolVar(&options.guide, "guided", false, "prompt the user for more input")
-	flag.Parse()
 	var template *os.File
 	var err error
 	if options.template == "stdin" {
@@ -41,8 +48,8 @@ func main() {
 		fmt.Fprintf(os.Stderr, "failed opening input file \"%v\" for reading: %v\n", options.template, err)
 		os.Exit(1)
 	}
-	var fout *os.File
 
+	var fout *os.File
 	if options.fout == "stdout" {
 		fout = os.Stdout
 	} else {
@@ -52,9 +59,10 @@ func main() {
 		fmt.Fprintf(os.Stderr, "failed opening output file \"%v\" for reading/writing: %v\n", options.fout, err)
 		os.Exit(1)
 	}
+
 	switch options.op {
 	case "build":
-		buf, err := templater.GetConfig(template, options.human)
+		buf, err := templater.BuildConfig(template, options.human)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "failed reading template: %v\n", err)
 			os.Exit(1)
@@ -75,7 +83,12 @@ func main() {
 			fmt.Fprintf(os.Stderr, "failed reading config \"%v\": %v\n", options.config, err)
 			os.Exit(1)
 		}
-		err = templater.CompileTemplate(template, config, fout)
+		esc, err := escaper.GetEscaper(options.escaper)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "could not get escaper \"%s\": %v\n", options.escaper, err)
+			os.Exit(1)
+		}
+		err = templater.CompileTemplate(template, config, fout, esc)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "failed compiling compiling document: %v\n", err)
 			os.Exit(1)
@@ -85,5 +98,6 @@ func main() {
 		// Exit code 2: The command line parameters could not be parsed.
 		os.Exit(2)
 	}
+
 	os.Exit(0)
 }
